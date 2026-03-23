@@ -27,12 +27,16 @@ export default class BlocklyStore {
     // Computed property to check if there's an active bot
     get has_active_bot(): boolean {
         // Check if there's an active bot in the workspace
-        const workspace = window.Blockly?.derivWorkspace;
-        if (!workspace) return false;
+        try {
+            const workspace = window?.Blockly?.derivWorkspace;
+            if (!workspace) return false;
 
-        // Check if there are any blocks in the workspace
-        const top_blocks = workspace.getTopBlocks();
-        return top_blocks && top_blocks.length > 0;
+            // Check if there are any blocks in the workspace
+            const top_blocks = workspace.getTopBlocks?.();
+            return top_blocks && top_blocks.length > 0;
+        } catch {
+            return false;
+        }
     }
 
     // Computed property to check if there are saved bots

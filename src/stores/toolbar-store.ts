@@ -75,10 +75,12 @@ export default class ToolbarStore implements IToolbarStore {
     };
 
     resetDefaultStrategy = async () => {
-        const workspace = window.Blockly.derivWorkspace;
-        workspace.current_strategy_id = window?.Blockly?.utils?.idGenerator?.genUid();
+        const workspace = window?.Blockly?.derivWorkspace;
+        if (!workspace) return;
+        
+        workspace.current_strategy_id = window?.Blockly?.utils?.idGenerator?.genUid?.() || '';
         await load({
-            block_string: workspace.cached_xml.main,
+            block_string: workspace.cached_xml?.main || '',
             file_name: config().default_file_name,
             workspace,
             drop_event: null,
@@ -86,41 +88,52 @@ export default class ToolbarStore implements IToolbarStore {
             from: null,
             showIncompatibleStrategyDialog: null,
         });
-        workspace.strategy_to_load = workspace.cached_xml.main;
+        if (workspace.cached_xml?.main) {
+            workspace.strategy_to_load = workspace.cached_xml.main;
+        }
         this.setResetButtonState(false);
     };
 
     onSortClick = () => {
+        const workspace = window?.Blockly?.derivWorkspace;
+        if (!workspace) return;
+        
         const {
             workspaces: {
                 indentWorkspace: { x, y },
             },
         } = config();
-        window.Blockly.derivWorkspace.cleanUp(x, y);
+        workspace.cleanUp?.(x, y);
     };
 
     onUndoClick = (is_redo: boolean): void => {
-        window.Blockly.Events.setGroup('undo_clicked');
-        window.Blockly.derivWorkspace.undo(is_redo);
-        window.Blockly.svgResize(window.Blockly.derivWorkspace); // Called for CommentDelete event.
+        const workspace = window?.Blockly?.derivWorkspace;
+        if (!workspace) return;
+        
+        window?.Blockly?.Events?.setGroup?.('undo_clicked');
+        workspace.undo?.(is_redo);
+        window?.Blockly?.svgResize?.(workspace);
         this.setHasRedoStack();
         this.setHasUndoStack();
-        window.Blockly.Events.setGroup(false);
+        window?.Blockly?.Events?.setGroup?.(false);
     };
 
     onZoomInOutClick = (is_zoom_in: boolean): void => {
-        const workspace = window.Blockly.derivWorkspace;
-        const metrics = workspace.getMetrics();
+        const workspace = window?.Blockly?.derivWorkspace;
+        if (!workspace) return;
+        
+        const metrics = workspace.getMetrics?.();
+        if (!metrics) return;
+        
         const addition = is_zoom_in ? 1 : -1;
-
-        workspace.zoom(metrics.viewWidth / 2, metrics.viewHeight / 2, addition);
+        workspace.zoom?.(metrics.viewWidth / 2, metrics.viewHeight / 2, addition);
     };
 
     setHasUndoStack = (): void => {
-        this.has_undo_stack = window.Blockly.derivWorkspace?.undoStack_?.length > 0;
+        this.has_undo_stack = (window?.Blockly?.derivWorkspace?.undoStack_?.length ?? 0) > 0;
     };
 
     setHasRedoStack = (): void => {
-        this.has_redo_stack = window.Blockly.derivWorkspace?.redoStack_?.length > 0;
+        this.has_redo_stack = (window?.Blockly?.derivWorkspace?.redoStack_?.length ?? 0) > 0;
     };
 }

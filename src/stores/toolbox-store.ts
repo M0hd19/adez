@@ -50,11 +50,13 @@ export default class ToolboxStore {
     onMount = (toolbox_ref: React.RefObject<HTMLDivElement>) => {
         this.adjustWorkspace();
 
-        this.toolbox_dom = window.Blockly.utils.xml.textToDom(toolbox_ref?.current);
-        const el = [...(this.toolbox_dom?.childNodes ?? [])].find(
-            el => el instanceof HTMLElement && el.tagName === 'examples'
-        );
-        if (el) this.toolbox_examples = el as HTMLElement;
+        if (window?.Blockly?.utils?.xml?.textToDom && toolbox_ref?.current) {
+            this.toolbox_dom = window.Blockly.utils.xml.textToDom(toolbox_ref?.current);
+            const el = [...(this.toolbox_dom?.childNodes ?? [])].find(
+                el => el instanceof HTMLElement && el.tagName === 'examples'
+            );
+            if (el) this.toolbox_examples = el as HTMLElement;
+        }
         this.setWorkspaceOptions();
         this.disposeToolboxToggleReaction = reaction(
             () => this.is_toolbox_open,
@@ -75,8 +77,10 @@ export default class ToolboxStore {
     }
 
     setWorkspaceOptions() {
-        const workspace = window.Blockly.derivWorkspace;
-        const readOnly = !!workspace.options.readOnly;
+        const workspace = window?.Blockly?.derivWorkspace;
+        if (!workspace) return;
+        
+        const readOnly = !!workspace?.options?.readOnly;
         let languageTree, hasCategories, hasCollapse, hasComments, hasDisable;
 
         if (readOnly) {
@@ -93,10 +97,12 @@ export default class ToolboxStore {
             hasDisable = hasCategories;
         }
 
-        workspace.options.collapse = hasCollapse;
-        workspace.options.comments = hasComments;
-        workspace.options.disable = hasDisable;
-        workspace.options.hasCategories = hasCategories;
+        if (workspace?.options) {
+            workspace.options.collapse = hasCollapse;
+            workspace.options.comments = hasComments;
+            workspace.options.disable = hasDisable;
+            workspace.options.hasCategories = hasCategories;
+        }
         workspace.options.languageTree = languageTree;
     }
     // eslint-disable-next-line class-methods-use-this

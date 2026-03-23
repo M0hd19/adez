@@ -145,6 +145,12 @@ export default class QuickStrategyStore implements IQuickStrategyStore {
     onSubmit = async (data: TFormData) => {
         const { contracts_for } = ApiHelpers?.instance ?? {};
         if (!contracts_for) return;
+        
+        if (!window?.Blockly?.utils?.xml?.textToDom) {
+            console.log('[v0] Blockly not loaded yet, skipping quick strategy');
+            return;
+        }
+        
         const market = await contracts_for.getMarketBySymbol(data.symbol);
         const submarket = await contracts_for.getSubmarketBySymbol(data.symbol);
         const trade_type_cat = await contracts_for.getTradeTypeCategoryByTradeType(data.tradetype);
@@ -196,13 +202,17 @@ export default class QuickStrategyStore implements IQuickStrategyStore {
             }
         });
 
-        const { derivWorkspace: workspace } = Blockly;
+        const workspace = window?.Blockly?.derivWorkspace;
+        if (!workspace) {
+            console.log('[v0] Workspace not available');
+            return;
+        }
 
         if (action === 'RUN') {
             workspace
-                ?.waitForBlockEvent({
+                ?.waitForBlockEvent?.({
                     block_type: 'trade_definition',
-                    event_type: window.Blockly.Events.BLOCK_CREATE,
+                    event_type: window?.Blockly?.Events?.BLOCK_CREATE || 'block_create',
                     timeout: 5000,
                 })
                 .then(() => {
@@ -212,8 +222,9 @@ export default class QuickStrategyStore implements IQuickStrategyStore {
 
         this.setFormVisibility(false);
 
+        const block_string = window?.Blockly?.Xml?.domToText?.(strategy_dom) || '';
         await load({
-            block_string: window.Blockly.Xml.domToText(strategy_dom),
+            block_string,
             file_name: selected_strategy.label,
             workspace,
             from: save_types.UNSAVED,

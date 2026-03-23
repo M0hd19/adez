@@ -1,3 +1,29 @@
+// Initialize Blockly placeholder to prevent undefined errors during store initialization
+// The actual Blockly will be loaded later and override this
+if (!(window as any).Blockly) {
+    (window as any).Blockly = {
+        Xml: { 
+            workspaceToDom: () => null, 
+            domToText: () => '', 
+            textToDom: () => null, 
+            clearWorkspaceAndLoadFromXml: () => {}, 
+            domToWorkspace: () => {} 
+        },
+        utils: { 
+            xml: { textToDom: () => null }, 
+            idGenerator: { genUid: () => `id_${Math.random().toString(36).substr(2, 9)}` } 
+        },
+        Events: { setGroup: () => {}, BLOCK_CREATE: 'block_create' },
+        DataCategory: { search: () => [], populateDynamicProcedures: () => [] },
+        Procedures: { allProcedures: () => [], populateDynamicProcedures: () => [] },
+        Blocks: {},
+        derivWorkspace: null as any,
+        inject: () => null,
+        svgResize: () => {},
+        WorkspaceSvg: {} as any,
+    };
+}
+
 export const getUrlBase = (path = '') => {
     const l = window.location;
 

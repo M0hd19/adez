@@ -83,7 +83,7 @@ export default defineConfig({
         template: './index.html',
     },
     server: {
-        port: 5000,
+        port: process.env.PORT ? parseInt(process.env.PORT) : 5000,
         host: '0.0.0.0',
         compress: true,
         headers: {

@@ -56,9 +56,11 @@ export default class DataCollectionStore {
     transaction_ids: Record<string, unknown> = {};
 
     async trackRun() {
-        const converted_workspace_to_dom = this.cleanXmlDom(
-            window.Blockly.Xml.workspaceToDom(DBot.workspace, /* opt_noId */ true)
-        );
+        if (!window.Blockly || !DBot.workspace) {
+            console.log('[v0] Blockly or workspace not loaded yet, skipping trackRun');
+            return;
+        }
+        const converted_workspace_to_dom = this.cleanXmlDom(window.Blockly.Xml.workspaceToDom(DBot.workspace, /* opt_noId */ true));
         const xml_dom = convertStrategyToIsDbot(converted_workspace_to_dom);
         const xml_string = window.Blockly.Xml.domToText(xml_dom);
         const xml_hash = this.getHash(xml_string);

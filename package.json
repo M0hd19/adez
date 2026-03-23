@@ -49,6 +49,7 @@
         "formik": "^2.4.6",
         "framer-motion": "^6.5.1",
         "html-react-parser": "^5.1.18",
+        "immutable": "^5.1.5",
         "js-cookie": "^3.0.5",
         "localforage": "^1.10.0",
         "lz-string": "^1.5.0",
